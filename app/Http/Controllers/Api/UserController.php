@@ -40,7 +40,7 @@ class UserController extends Controller
         $validator =Validator::make($request->all(), [
             'name'       => ['required', 'string', 'max:100'],
             'mobile'     => ['nullable', 'string', 'max:20'],
-            'department' => ['nullable', 'string', 'max:100'],
+            // 'department' => ['nullable', 'string', 'max:100'],
             'email'      => ['required', 'email', 'max:255', 'unique:users,email'],
             'password'   => ['required', 'confirmed', Password::defaults()],
             'role_id'    => ['required', 'exists:roles,id'],
@@ -62,7 +62,7 @@ class UserController extends Controller
                 'name'       => $validated['name'],
                 'email'      => $validated['email'],
                 'mobile'     => $validated['mobile'] ?? null,
-                'department' => $validated['department'] ?? null,
+                // 'department' => $validated['department'] ?? null,
                 'password'   => Hash::make($validated['password']),
             ]);
 
@@ -118,7 +118,7 @@ class UserController extends Controller
                     'name'       => $user->name,
                     'email'      => $user->email,
                     'mobile'     => $user->mobile,
-                    'department' => $user->department,
+                    // 'department' => $user->department,
                     'role_id'    => $user->roles->first()?->id,
                 ],
                 'roles' => $roles
@@ -133,7 +133,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name'       => ['required', 'string', 'max:100'],
             'mobile'     => ['nullable', 'string', 'max:20'],
-            'department' => ['nullable', 'string', 'max:100'],
+            // 'department' => ['nullable', 'string', 'max:100'],
             'email'      => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'password'   => ['nullable', 'confirmed', Password::defaults()],
             'role_id'    => ['required', 'exists:roles,id'],
@@ -156,7 +156,7 @@ class UserController extends Controller
                 'name'       => $validated['name'],
                 'email'      => $validated['email'],
                 'mobile'     => $validated['mobile'] ?? null,
-                'department' => $validated['department'] ?? null,
+                // 'department' => $validated['department'] ?? null,
                 'password'   => isset($validated['password'])
                     ? Hash::make($validated['password'])
                     : $user->password,
@@ -201,7 +201,8 @@ class UserController extends Controller
                 $query->select('id', 'name', 'guard_name')
                     ->where('guard_name', 'api');
             }])
-            ->select('id', 'name', 'email', 'mobile', 'department')
+            // ->select('id', 'name', 'email', 'mobile', 'department')
+            ->select('id', 'name', 'email', 'mobile')
             ->get()
             ->map(function ($user) {
                 return [
@@ -209,7 +210,7 @@ class UserController extends Controller
                     'name'       => $user->name,
                     'email'      => $user->email,
                     'mobile'     => $user->mobile,
-                    'department' => $user->department,
+                    // 'department' => $user->department,
                     'role'       => $user->roles->map(fn($r) => ucfirst($r->name))->implode(', '),
                 ];
             });
@@ -293,7 +294,7 @@ class UserController extends Controller
             'name'       => 'required|string|max:255',
             'email'      => 'required|email|unique:users,email,' . $user->id,
             'mobile'     => 'nullable|string|max:20',
-            'department' => 'nullable|string|max:100',
+            // 'department' => 'nullable|string|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -304,7 +305,8 @@ class UserController extends Controller
             ], 422);
         }
 
-        $user->update($request->only('name', 'email', 'mobile', 'department'));
+        // $user->update($request->only('name', 'email', 'mobile', 'department'));
+        $user->update($request->only('name', 'email', 'mobile'));
 
         return response()->json([
             'status'  => true,
@@ -314,7 +316,7 @@ class UserController extends Controller
                 'name'       => $user->name,
                 'email'      => $user->email,
                 'mobile'     => $user->mobile,
-                'department' => $user->department,
+                // 'department' => $user->department,
             ],
         ], 200);
     }

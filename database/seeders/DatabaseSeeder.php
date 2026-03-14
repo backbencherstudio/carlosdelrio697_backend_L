@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         $adminApi=User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
-            'department' => 'IT',
+            // 'department' => 'IT',
             'mobile' => '01700000001',
             'password' => bcrypt('111111'),
         ]);
