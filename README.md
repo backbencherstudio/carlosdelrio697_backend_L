@@ -1,7 +1,8 @@
 # CarlosDelRio697 Backend API
 
-A backend REST API built with Laravel for the CarlosDelRio697 platform.
-This service handles authentication, data management, and API endpoints for the application.
+Backend API service built with Laravel for the CarlosDelRio697 platform.
+
+This backend handles application logic, authentication, database operations, and API endpoints for the system.
 
 ---
 
@@ -11,7 +12,7 @@ This service handles authentication, data management, and API endpoints for the 
 * Laravel
 * MySQL
 * Composer
-* REST API
+* RESTful API
 
 ---
 
@@ -39,7 +40,7 @@ tests/
 git clone git@github.com:backbencherstudio/carlosdelrio697_backend_L.git
 ```
 
-### 2. Navigate to the project directory
+### 2. Navigate to project directory
 
 ```
 cd carlosdelrio697_backend_L
@@ -51,7 +52,7 @@ cd carlosdelrio697_backend_L
 composer install
 ```
 
-### 4. Copy environment file
+### 4. Copy environment configuration
 
 ```
 cp .env.example .env
@@ -65,7 +66,7 @@ php artisan key:generate
 
 ### 6. Configure database
 
-Update your `.env` file with database credentials.
+Update the `.env` file with your database credentials.
 
 ```
 DB_DATABASE=your_database
@@ -85,7 +86,7 @@ php artisan migrate
 php artisan serve
 ```
 
-The application will run at:
+Application will run at:
 
 ```
 http://127.0.0.1:8000
@@ -101,20 +102,12 @@ http://127.0.0.1:8000/api
 
 ---
 
-## 🧪 Running Tests
+## 🔒 Project Status
 
-```
-php artisan test
-```
+This repository contains proprietary code and is not intended for public redistribution.
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Maintained By
 
 Backbencher Studio
-
----
-
-## 📄 License
-
-This project is open-source and available under the MIT License.
