@@ -12,8 +12,18 @@ class PromoCode extends Model
     protected $fillable = [
         'code',
         'discount',
+        'total_used',
         'max_uses',
         'expires',
         'status'
     ];
+
+    protected static function booted()
+    {
+        static::updating(function ($promo) {
+            if ($promo->total_used >= $promo->max_uses) {
+                $promo->status = 0;
+            }
+        });
+    }
 }
