@@ -35,3 +35,6 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
 
 });
 
+require __DIR__.'/niaz.php';
+require __DIR__.'/sahadat.php';
+require __DIR__.'/shanto.php';
