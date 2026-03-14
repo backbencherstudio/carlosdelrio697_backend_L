@@ -19,13 +19,6 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
         $this->call(RolePermissionSeeder::class);
 
-        $admin=User::factory()->create([
-            'name' => 'Admin Web',
-            'email' => 'adminweb@gmail.com',
-            'department' => 'IT',
-            'mobile' => '01700000000',
-            'password' => bcrypt('111111'),
-        ]);
         $adminApi=User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
@@ -34,7 +27,6 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('111111'),
         ]);
 
-        $admin->assignRole('admin');
         $adminApi->assignRole(Role::where('name','admin')->where('guard_name','api')->first());
     }
 }

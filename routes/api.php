@@ -29,17 +29,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/refresh', [AuthController::class, 'refresh']);
 });
 
-Route::middleware(['auth:api', 'permission:api.role.view'])->get('/roles', [RoleController::class, 'data'])->name('api.role.view');
-Route::middleware(['auth:api', 'permission:api.role.create'])->group(function () {
-    Route::get('/permissions', [RoleController::class, 'permissions'])->name('api.permissions.view');
-    Route::post('/role-store', [RoleController::class, 'store'])->name('api.role.store');
-});
-Route::middleware(['auth:api', 'permission:api.role.edit'])->group(function () {
-    Route::get('/role-edit-data/{id}', [RoleController::class, 'edit'])->name('api.role.edit');
-    Route::put('/role-update/{id}', [RoleController::class, 'update'])->name('api.role.update');
-});
-Route::middleware(['auth:api', 'permission:api.role.destroy'])->delete('/role-delete/{id}', [RoleController::class, 'destroy'])->name('api.role.destroy');
-
 Route::middleware(['auth:api', 'permission:api.user.view'])->get('/users', [UserController::class, 'data'])->name('api.user.view');
 Route::middleware(['auth:api', 'permission:api.user.create'])->group(function () {
     Route::get('/role-list', [UserController::class, 'roleList'])->name('api.role.list');
