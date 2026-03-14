@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckSubdomain;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -27,14 +28,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
     ->withExceptions(function (Exceptions $exceptions): void {
 
-        // 🔹 JWT unauthenticated (no token / expired token)
         $exceptions->render(function (AuthenticationException $e, $request) {
             if ($request->is('api/*')) {
                 return redirect('/api/login');
             }
         });
 
-        // 🔹 Spatie role / permission denied (403)
         $exceptions->render(function (AccessDeniedHttpException $e, $request) {
             if ($request->is('api/*')) {
                 return redirect('/api/login');
