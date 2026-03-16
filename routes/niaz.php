@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\PromoCodeController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -14,4 +15,7 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
     Route::patch('/promo-codes/{id}/status', [PromoCodeController::class, 'updateStatus']);
     Route::delete('/promo-codes/{id}', [PromoCodeController::class, 'destroy']);
 
+
+
+    Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
 });
