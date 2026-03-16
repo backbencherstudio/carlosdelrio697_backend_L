@@ -2,88 +2,127 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use Stripe\PaymentMethod;
 use App\Models\Service;
-use App\Models\Payment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
     public function processPayment(Request $request)
     {
-        // ১. ভ্যালিডেশন
         $request->validate([
-            'service_id' => 'required|exists:services,id',
             'payment_method_id' => 'required',
-            'customer_email' => 'nullable|email', // গ্রাহকের ইমেল যদি পাঠান
-            'customer_name' => 'nullable|string', // গ্রাহকের নাম যদি পাঠান
+            'customer_name' => 'required|string',
+            'customer_email' => 'required|email',
+            'state' => 'required|string',
         ]);
 
-        // ২. ডাটাবেস থেকে ডাইনামিক প্রাইস
-        $service = Service::findOrFail($request->service_id);
-        $amountInCents = $service->price * 100;
+        $serviceName = "Real Estate Power of Attorney";
+        $price = 150.00;
+        $amountInCents = $price * 100;
 
-        // ৩. Stripe Secret Key
         Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
-            // ৪. PaymentIntent তৈরি
             $intent = PaymentIntent::create([
                 'amount' => $amountInCents,
-                'currency' => 'usd', // আপনার কারেন্সি
+                'currency' => 'usd',
                 'payment_method' => $request->payment_method_id,
-                'confirmation_method' => 'manual',
                 'confirm' => true,
-                'description' => "Payment for Service: " . $service->name,
-                // 'return_url' => route('payment.success'), // যদি পেমেন্ট শেষে কোনো পেজে রিডাইরেক্ট করতে চান
                 'automatic_payment_methods' => [
                     'enabled' => true,
                     'allow_redirects' => 'never',
                 ],
-                'metadata' => [ // stripe dashboard-এ দেখার জন্য
-                    'service_id' => $service->id,
-                    'customer_email' => $request->customer_email ?? 'N/A',
-                    'customer_name' => $request->customer_name ?? 'N/A',
-                ]
             ]);
 
-            // ৫. ডাটাবেসে পেমেন্ট রেকর্ড সেভ করা
-            Payment::create([
-                'service_id' => $service->id,
-                'amount' => $service->price,
-                'transaction_id' => $intent->id,
-                'status' => 'completed', // Stripe confirmation automatically makes it completed
-                'customer_email' => $request->customer_email,
-                'customer_name' => $request->customer_name,
+            $paymentMethod = PaymentMethod::retrieve($request->payment_method_id);
+            $cardBrand = $paymentMethod->card->brand; // like: visa
+            $cardLast4 = $paymentMethod->card->last4; // like: 4242
+
+            $lastOrder = Order::latest()->first();
+            $nextId = $lastOrder ? $lastOrder->id + 1 : 1;
+            $orderNumber = 'ORD-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+
+            $order = Order::create([
+                'order_number'          => $orderNumber,
+                'customer_name'         => $request->customer_name,
+                'customer_email'        => $request->customer_email,
+                'service_name'          => $serviceName,
+                'state'                 => $request->state,
+                'amount'                => $price,
+                'status'                => 'Completed',
+                'card_brand'            => ucfirst($cardBrand), // Visa
+                'card_last4'            => $cardLast4,         // 4242
+                'document_status'       => 'Ready',            // Ready
+                'stripe_transaction_id' => $intent->id,
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Payment Successful!',
-                'transaction_id' => $intent->id // চাইলে ট্রানজেকশন আইডি ফেরত দিতে পারেন
+                'message' => 'Order processed successfully!',
+                'order_details' => $order
             ]);
-        } catch (\Stripe\Exception\CardErrorException $e) {
-            // Handle card errors
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'type' => 'card_error'
-            ], 400);
-        } catch (\Stripe\Exception\ApiErrorException $e) {
-            // Handle other Stripe API errors
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'type' => 'api_error'
-            ], 500);
         } catch (\Exception $e) {
-            // Handle general errors
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage(),
-                'type' => 'general_error'
+                'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getAdminOrders(Request $request)
+    {
+        $query = Order::query();
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'LIKE', "%{$search}%")
+                    ->orWhere('stripe_transaction_id', 'LIKE', "%{$search}%")
+                    ->orWhere('customer_name', 'LIKE', "%{$search}%")
+                    ->orWhere('state', 'LIKE', "%{$search}%")
+                    ->orWhere('service_name', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($request->has('status') && $request->status != 'All') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('date_filter')) {
+            if ($request->date_filter == 'this_month') {
+                $query->whereMonth('created_at', Carbon::now()->month)
+                    ->whereYear('created_at', Carbon::now()->year);
+            } elseif ($request->date_filter == 'last_month') {
+                $query->whereMonth('created_at', Carbon::now()->subMonth()->month)
+                    ->whereYear('created_at', Carbon::now()->subMonth()->year);
+            } elseif ($request->date_filter == 'this_year') {
+                $query->whereYear('created_at', Carbon::now()->year);
+            }
+        }
+
+        $orders = $query->latest()->paginate(10);
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders
+        ]);
+    }
+
+    public function getOrderDetail($id)
+    {
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $order
+        ]);
     }
 }

@@ -17,5 +17,12 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
 
 
 
-    Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
+    Route::get('/admin/orders', [PaymentController::class, 'getAdminOrders']);
+    Route::get('/admin/orders/{id}', [PaymentController::class, 'getOrderDetail']);
+});
+
+Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
+
+Route::get('/stripe-key', function () {
+    return response()->json(['key' => config('services.stripe.key')]);
 });
