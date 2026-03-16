@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_number')->unique(); // ORD-001
+            $table->foreignId('service_id')->nullable()->constrained()->onDelete('set null');
             $table->string('customer_name');
             $table->string('customer_email');
-            $table->string('service_name');
             $table->string('state');
             $table->decimal('amount', 10, 2);
             $table->string('status')->default('Completed');
-            $table->string('card_brand')->nullable(); // Visa, Mastercard 
+            $table->string('card_brand')->nullable(); // Visa, Mastercard
             $table->string('card_last4')->nullable();  // **** 0001
             $table->string('document_status')->default('Ready');
             $table->string('stripe_transaction_id')->nullable(); // from Stripe ID

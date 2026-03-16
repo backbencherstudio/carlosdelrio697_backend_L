@@ -11,15 +11,20 @@ class Order extends Model
 
     protected $fillable = [
         'order_number',
+        'service_id',
         'customer_name',
         'customer_email',
-        'service_name',
         'state',
         'amount',
         'status',
         'card_brand',
-        'card_last4',      
+        'card_last4',
         'document_status',
         'stripe_transaction_id',
     ];
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
 }
