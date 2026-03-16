@@ -67,7 +67,44 @@ class SettingsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update platform settings.',
-                'error' => config('app.debug') ? $e->getMessage() : ''
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateNotificationSettings(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+
+            $validated = $request->validate([
+                'email_on_new_orders' => ['sometimes', 'boolean'],
+                'email_on_compliance_flags' => ['sometimes', 'boolean'],
+                'email_on_risk_allert' => ['sometimes', 'boolean'],
+            ]);
+
+            if (empty($validated)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'At least one notification setting must be provided.'
+                ], 422);
+            }
+
+            $settings = Settings::updateOrCreate(
+                ['user_id' => $user->id],
+                array_merge(['user_id' => $user->id], $validated)
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification settings updated successfully.',
+            ], 200);
+
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update notification settings.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
