@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
 
         $adminApi=User::factory()->create([
             'name' => 'Admin',
+            'last_name' => 'Sohel',
             'email' => 'admin@gmail.com',
             // 'department' => 'IT',
             'mobile' => '01700000001',
