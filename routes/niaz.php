@@ -10,11 +10,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api', 'role:admin'])->group(function () {
 
-    Route::prefix('admin-dashboard')->group(function () {
-        Route::get('/metrics', [DashboardController::class, 'getMetrics']);
-        Route::get('/revenue-trend', [DashboardController::class, 'getRevenueTrend']);
-        Route::get('/revenue-by-service', [DashboardController::class, 'getRevenueByService']);
-    });
+    //Admin Dashboard
+    Route::get('admin-dashboard/metrics', [DashboardController::class, 'getMetrics']);
+    Route::get('admin-dashboard/revenue-trend', [DashboardController::class, 'getRevenueTrend']);
+    Route::get('admin-dashboard/revenue-by-service', [DashboardController::class, 'getRevenueByService']);
+    Route::get('admin-dashboard/latest-orders', [DashboardController::class, 'latestOrders']);
+
+    //Admin order Section
+    Route::get('/admin/orders', [OrderController::class, 'getAdminOrders']);
+    Route::get('/admin/order-details/{id}', [OrderController::class, 'getOrderDetail']);
 
     //Admin promo-codes Section
     Route::get('/promo-codes', [PromoCodeController::class, 'index']);
@@ -23,10 +27,6 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
     Route::put('/promo-codes-update/{id}', [PromoCodeController::class, 'update']);
     Route::patch('/promo-codes/{id}/status', [PromoCodeController::class, 'updateStatus']);
     Route::delete('/promo-codes/{id}', [PromoCodeController::class, 'destroy']);
-
-    //Admin order Section
-    Route::get('/admin/orders', [OrderController::class, 'getAdminOrders']);
-    Route::get('/admin/order-details/{id}', [OrderController::class, 'getOrderDetail']);
 });
 
 Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');

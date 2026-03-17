@@ -96,4 +96,42 @@ class DashboardController extends Controller
             'data' => $revenueByService
         ]);
     }
+
+    public function latestOrders()
+    {
+        try {
+            $orders = Order::with('service:id,title')
+                ->latest()
+                ->limit(10)
+                ->get();
+
+            if ($orders->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => []
+                ]);
+            }
+
+            $orders->map(function ($order) {
+                $order->service_name = $order->service_name ?? ($order->service->title ?? 'N/A');
+
+                $order->makeHidden(['customer_email', 'stripe_transaction_id', 'card_brand', 'card_brand', 'card_last4', 'document_status', 'created_at', 'updated_at']);
+
+                $order->unsetRelation('service');
+
+                return $order;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $orders
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching orders',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
