@@ -83,4 +83,17 @@ class DashboardController extends Controller
             'data' => array_values($data)
         ]);
     }
+
+    public function getRevenueByService()
+    {
+        $revenueByService = Order::join('services', 'orders.service_id', '=', 'services.id')
+            ->select('services.title as service_name', DB::raw('SUM(orders.amount) as total_amount'))
+            ->groupBy('services.id', 'services.title')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $revenueByService
+        ]);
+    }
 }

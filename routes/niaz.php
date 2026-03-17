@@ -13,6 +13,7 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
     Route::prefix('admin-dashboard')->group(function () {
         Route::get('/metrics', [DashboardController::class, 'getMetrics']);
         Route::get('/revenue-trend', [DashboardController::class, 'getRevenueTrend']);
+        Route::get('/revenue-by-service', [DashboardController::class, 'getRevenueByService']);
     });
 
     //Admin promo-codes Section
