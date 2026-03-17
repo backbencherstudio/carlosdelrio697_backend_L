@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PromoCodeController;
@@ -19,6 +20,9 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
     //Admin order Section
     Route::get('/admin/orders', [OrderController::class, 'getAdminOrders']);
     Route::get('/admin/order-details/{id}', [OrderController::class, 'getOrderDetail']);
+
+    //customers Section
+    Route::get('admin/customers', [CustomerController::class, 'index']);
 
     //Admin promo-codes Section
     Route::get('/promo-codes', [PromoCodeController::class, 'index']);
