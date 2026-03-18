@@ -49,17 +49,27 @@ class SettingsController extends Controller
         }
     }
 
-   public function updateSettings(Request $request): JsonResponse
+    public function updateSettings(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
 
             $validated = $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'last_name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+                'name' => ['string', 'max:255'],
+                'last_name' => ['string', 'max:255'],
+                'email' => ['email', 'max:255', 'unique:users,email,' . $user->id],
+                'mobile' => ['unique:users,mobile,' . $user->id],
                 'profile_image' => ['sometimes', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+                'remove_image' => ['sometimes', 'boolean'], 
             ]);
+
+            if ($request->boolean('remove_image')) {
+                if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
+                    Storage::disk('public')->delete($user->profile_image);
+                }
+
+                $validated['profile_image'] = null;
+            }
 
             if ($request->hasFile('profile_image')) {
 
@@ -87,6 +97,7 @@ class SettingsController extends Controller
                     'name' => $user->name,
                     'last_name' => $user->last_name,
                     'email' => $user->email,
+                    'mobile' => $user->mobile,
                     'profile_image' => $user->profile_image
                         ? asset('storage/' . $user->profile_image)
                         : null
