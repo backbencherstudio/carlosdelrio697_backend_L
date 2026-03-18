@@ -51,7 +51,7 @@
             &#128679; <!-- Construction emoji -->
         </div>
         <h1>Carlosdelrio697 Under Development</h1>
-        <p>We are working hard to get this page ready for you.<br>Check back soon! d</p>
+        <p>We are working hard to get this page ready for you.<br>Check back soon! dd</p>
     </div>
 
     <!-- Bootstrap JS Bundle -->
