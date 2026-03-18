@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('services', function (Blueprint $table) {
+        Schema::create('service_submissions', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('icon')->nullable();
-            $table->decimal('price', 10, 2)->default(0);
-            $table->string('short_service_detail');
-            $table->longText('description')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->foreignId('service_id')->constrained()->cascadeOnDelete();
+
+            $table->json('data'); // dynamic answers
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('services');
+        Schema::dropIfExists('service_submissions');
     }
 };

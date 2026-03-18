@@ -11,11 +11,20 @@ class Service extends Model
 
     protected $fillable = [
         'title',
-        'description',
-        'price',
-        'steps',
-        'version',
         'icon',
+        'price',
+        'short_service_detail',
+        'description',
         'is_active',
     ];
+
+    public function steps()
+    {
+        return $this->hasMany(ServiceStep::class)->orderBy('order');
+    }
+
+    public function submissions()
+    {
+        return $this->hasMany(ServiceSubmission::class);
+    }
 }
