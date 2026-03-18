@@ -24,7 +24,7 @@ class SettingsController extends Controller
                 'success' => true,
                 'data' => [
                     'user_settings' => [
-                        'name' => $user->name,
+                        'first_name' => $user->first_name,
                         'last_name' => $user->last_name,
                         'email' => $user->email,
                     ],
@@ -55,7 +55,7 @@ class SettingsController extends Controller
             $user = $request->user();
 
             $validated = $request->validate([
-                'name' => ['string', 'max:255'],
+                'first_name' => ['string', 'max:255'],
                 'last_name' => ['string', 'max:255'],
                 'email' => ['email', 'max:255', 'unique:users,email,' . $user->id],
                 'mobile' => ['unique:users,mobile,' . $user->id],
@@ -94,7 +94,7 @@ class SettingsController extends Controller
                 'success' => true,
                 'message' => 'Settings updated successfully',
                 'data' => [
-                    'name' => $user->name,
+                    'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
                     'email' => $user->email,
                     'mobile' => $user->mobile,
