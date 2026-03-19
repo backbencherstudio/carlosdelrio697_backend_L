@@ -11,11 +11,30 @@ class Service extends Model
 
     protected $fillable = [
         'title',
-        'description',
-        'price',
-        'steps',
-        'version',
         'icon',
+        'price',
+        'short_service_detail',
+        'description',
+        'effective_date',
+        'expiry_date',
         'is_active',
     ];
+
+    public function getIconUrlAttribute()
+    {
+        if ($this->icon) {
+            return asset('storage/' . $this->icon);
+        }
+        return null;
+    }
+
+    public function steps()
+    {
+        return $this->hasMany(ServiceStep::class)->orderBy('order');
+    }
+
+    public function submissions()
+    {
+        return $this->hasMany(ServiceSubmission::class);
+    }
 }
