@@ -15,11 +15,13 @@ class ServiceField extends Model
         'required',
         'options',
         'order',
+        'column',
     ];
 
     protected $casts = [
         'required' => 'boolean',
         'options' => 'array',
+        'column' => 'integer',
     ];
 
     public function step()

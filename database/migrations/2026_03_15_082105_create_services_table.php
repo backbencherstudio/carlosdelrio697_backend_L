@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('title', 500);
             $table->string('icon')->nullable();
             $table->decimal('price', 10, 2)->default(0);
-            $table->string('short_service_detail');
+            $table->string('short_service_detail', 500);
             $table->longText('description')->nullable();
+            $table->date('effective_date')->nullable();
+            $table->date('expiry_date')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

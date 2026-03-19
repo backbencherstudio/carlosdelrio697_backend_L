@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('service_id')->constrained()->cascadeOnDelete();
 
-            $table->json('data'); // dynamic answers
+            $table->json('data');
             $table->timestamps();
         });
     }

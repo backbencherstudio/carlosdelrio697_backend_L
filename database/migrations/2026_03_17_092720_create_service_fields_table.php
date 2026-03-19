@@ -14,17 +14,20 @@ return new class extends Migration
         Schema::create('service_fields', function (Blueprint $table) {
             $table->id();
             $table->foreignId('service_step_id')->constrained()->cascadeOnDelete();
+            $table->integer('column')->default(1);
 
             $table->string('label');
-            $table->string('document_key')->index(); // fast lookup for docs
+            $table->string('document_key')->index();
             $table->enum('type', [
-                'text','number','email','date','radio','textarea','select'
+                'text','number','email','date',
+                'radio','textarea','select',
+                'rich_text','effective_date'
             ]);
 
             $table->string('placeholder')->nullable();
             $table->boolean('required')->default(false);
 
-            $table->json('options')->nullable(); // for radio/select
+            $table->json('options')->nullable();
             $table->unsignedInteger('order')->default(0);
 
             $table->timestamps();

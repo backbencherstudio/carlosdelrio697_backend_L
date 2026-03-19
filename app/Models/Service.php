@@ -15,8 +15,18 @@ class Service extends Model
         'price',
         'short_service_detail',
         'description',
+        'effective_date',
+        'expiry_date',
         'is_active',
     ];
+
+    public function getIconUrlAttribute()
+    {
+        if ($this->icon) {
+            return asset('storage/' . $this->icon);
+        }
+        return null;
+    }
 
     public function steps()
     {
