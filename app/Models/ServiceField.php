@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ServiceField extends Model
 {
     protected $fillable = [
+        'service_id',
         'service_step_id',
         'label',
         'document_key',

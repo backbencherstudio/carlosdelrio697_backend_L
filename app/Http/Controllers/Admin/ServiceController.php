@@ -84,6 +84,18 @@ class ServiceController extends Controller
 
         try {
 
+            $allKeys = collect($request->steps)
+                ->flatMap(fn($step) => $step['fields'])
+                ->pluck('document_key')
+                ->map(fn($key) => Str::slug($key, '_'));
+
+            if ($allKeys->count() !== $allKeys->unique()->count()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Duplicate document_key found in this service'
+                ], 422);
+            }
+
             $effectiveCount = collect($request->steps)
                 ->flatMap(fn($step) => $step['fields'])
                 ->where('type', 'effective_date')
@@ -126,6 +138,7 @@ class ServiceController extends Controller
                     }
 
                     $stepModel->fields()->create([
+                        'service_id' => $service->id,
                         'label' => $field['label'],
                         'document_key' => $documentKey,
                         'type' => $field['type'],
@@ -165,19 +178,22 @@ class ServiceController extends Controller
             },
             'steps.fields' => function ($q) {
                 $q->orderBy('order')
-                ->select('id','service_step_id','label','document_key','type',
-                    'placeholder','required','options','column','order'
+                ->select('id', 'service_id', 'service_step_id', 'label', 'document_key', 'type',
+                    'placeholder', 'required', 'options', 'column', 'order'
                 );
             }
         ])
-        ->select('id','title', 'icon', 'price', 'short_service_detail','description','effective_date','expiry_date','is_active'
-        )
+        ->select('id','title', 'icon', 'price', 'short_service_detail','description','effective_date','expiry_date','is_active')
         ->findOrFail($service->id);
+
+        $serviceData = $service->toArray();
+
+        $serviceData['icon'] = $service->icon ? asset('storage/' . $service->icon) : null;
 
         return response()->json([
             'status' => true,
             'message' => 'Service form retrieved successfully',
-            'data' => $service
+            'data' => $serviceData
         ]);
     }
 
@@ -186,6 +202,18 @@ class ServiceController extends Controller
         DB::beginTransaction();
 
         try {
+            $allKeys = collect($request->steps)
+                ->flatMap(fn($step) => $step['fields'])
+                ->pluck('document_key')
+                ->map(fn($key) => Str::slug($key, '_'));
+
+            if ($allKeys->count() !== $allKeys->unique()->count()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Duplicate document_key found in this service'
+                ], 422);
+            }
+
             $effectiveCount = collect($request->steps)
                 ->flatMap(fn($step) => $step['fields'])
                 ->where('type', 'effective_date')
@@ -217,6 +245,7 @@ class ServiceController extends Controller
             $existingStepIds = $service->steps()->pluck('id')->toArray();
 
             foreach ($request->steps as $stepIndex => $stepData) {
+
                 if (isset($stepData['id'])) {
                     $step = ServiceStep::findOrFail($stepData['id']);
                     $step->update([
@@ -234,6 +263,7 @@ class ServiceController extends Controller
                 $submittedFieldIds = [];
 
                 foreach ($stepData['fields'] as $fieldIndex => $fieldData) {
+
                     $documentKey = Str::slug($fieldData['document_key'], '_');
 
                     if (in_array($fieldData['type'], ['select', 'radio']) && empty($fieldData['options'])) {
@@ -243,6 +273,7 @@ class ServiceController extends Controller
                     if (isset($fieldData['id'])) {
                         $field = ServiceField::findOrFail($fieldData['id']);
                         $field->update([
+                            'service_id' => $service->id,
                             'label' => $fieldData['label'],
                             'document_key' => $documentKey,
                             'type' => $fieldData['type'],
@@ -253,8 +284,10 @@ class ServiceController extends Controller
                             'order' => $fieldIndex,
                         ]);
                         $submittedFieldIds[] = $field->id;
+
                     } else {
                         $newField = $step->fields()->create([
+                            'service_id' => $service->id,
                             'label' => $fieldData['label'],
                             'document_key' => $documentKey,
                             'type' => $fieldData['type'],
@@ -290,6 +323,7 @@ class ServiceController extends Controller
             ]);
 
         } catch (\Throwable $e) {
+
             DB::rollBack();
 
             return response()->json([
@@ -314,6 +348,72 @@ class ServiceController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function active(Request $request, Service $service)
+    {
+        $request->validate([
+            'is_active' => 'required|in:1,0',
+        ]);
+
+        $service->is_active = $request->is_active;
+        $service->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Service form status updated successfully'
+        ]);
+    }
+
+    public function documentKeys($serviceId)
+    {
+        $service = Service::with('steps.fields:id,service_step_id,document_key')
+            ->findOrFail($serviceId);
+
+        $keys = collect($service->steps)
+            ->flatMap(fn($step) => $step->fields)
+            ->pluck('document_key')
+            ->unique()
+            ->values();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Document keys retrieved successfully',
+            'data' => $keys
+        ]);
+    }
+
+    public function value(Request $request, $serviceId)
+    {
+        $request->validate([
+            'document_key' => 'required|string',
+            'submission_id' => 'required|integer'
+        ]);
+
+        $documentKey = $request->document_key;
+        $submissionId = $request->submission_id;
+
+        $submission = ServiceSubmission::where('id', $submissionId)
+            ->where('service_id', $serviceId)
+            ->first();
+
+        if (!$submission) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No submission found'
+            ], 404);
+        }
+
+        $data = $submission->data;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Value retrieved successfully',
+            'data' => [
+                'document_key' => $documentKey,
+                'value' => $data[$documentKey] ?? null
+            ]
+        ]);
     }
 
 }

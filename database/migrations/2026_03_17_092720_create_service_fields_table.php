@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('service_fields', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('service_id')->constrained()->cascadeOnDelete();
             $table->foreignId('service_step_id')->constrained()->cascadeOnDelete();
+
             $table->integer('column')->default(1);
 
             $table->string('label');
             $table->string('document_key')->index();
+
             $table->enum('type', [
                 'text','number','email','date',
                 'radio','textarea','select',
@@ -32,7 +36,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['service_step_id', 'document_key']); // prevent duplicates
+            $table->unique(['service_id', 'document_key']);
         });
     }
 

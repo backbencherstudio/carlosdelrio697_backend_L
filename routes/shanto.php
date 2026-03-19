@@ -13,6 +13,9 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('/service-form-edit/{service}', [ServiceController::class, 'edit']);
     Route::post('/service-form-update/{service}', [ServiceController::class, 'update']);
     Route::delete('/service-form-delete/{service}', [ServiceController::class, 'destroy']);
+    Route::patch('/service-form-active/{service}', [ServiceController::class, 'active']);
+    Route::get('/document-keys/{service}', [ServiceController::class, 'documentKeys']);
+    Route::get('/value-using-document-key/{service}', [ServiceController::class, 'value']);
 
     //form submit
     Route::post('/service-store/{service}', [ServiceSubmitController::class, 'submit']);
