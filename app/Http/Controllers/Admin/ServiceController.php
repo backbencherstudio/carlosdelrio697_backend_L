@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
 use App\Models\ServiceField;
+use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
 {
@@ -39,8 +40,7 @@ class ServiceController extends Controller
             return [
                 'id' => $service->id,
                 'title' => $service->title,
-                'icon' => $service->icon,
-                'icon_url' => $service->icon_url,
+                'icon' => $service->icon_url,
                 'price' => $service->price,
                 'short_service_detail' => $service->short_service_detail,
                 'description' => $service->description,
@@ -96,9 +96,14 @@ class ServiceController extends Controller
                 ], 422);
             }
 
+            $iconPath = null;
+            if ($request->hasFile('icon')) {
+                $iconPath = $request->file('icon')->store('services/icons', 'public');
+            }
+
             $service = Service::create([
                 'title' => $request->title,
-                'icon' => $request->icon,
+                'icon' => $iconPath,
                 'price' => $request->price,
                 'short_service_detail' => $request->short_service_detail,
                 'description' => $request->description,
@@ -193,9 +198,16 @@ class ServiceController extends Controller
                 ], 422);
             }
 
+            if ($request->hasFile('icon')) {
+                if ($service->icon && Storage::disk('public')->exists($service->icon)) {
+                    Storage::disk('public')->delete($service->icon);
+                }
+
+                $service->icon = $request->file('icon')->store('services/icons', 'public');
+            }
+
             $service->update([
                 'title' => $request->title,
-                'icon' => $request->icon,
                 'price' => $request->price,
                 'short_service_detail' => $request->short_service_detail,
                 'description' => $request->description,

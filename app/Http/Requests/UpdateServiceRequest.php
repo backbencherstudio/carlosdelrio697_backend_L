@@ -18,7 +18,7 @@ class UpdateServiceRequest extends FormRequest
                 'max:500',
                 Rule::unique('services', 'title')->ignore($serviceId),
             ],
-            'icon' => 'nullable|url|max:2048',
+            'icon' => 'nullable|file|image|max:2048',
             'price' => 'required|numeric|min:0',
             'short_service_detail' => 'required|string|max:500',
             'description' => 'nullable|string',

@@ -10,7 +10,7 @@ class StoreServiceRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:500|unique:services,title',
-            'icon' => 'nullable|url|max:2048',
+            'icon' => 'nullable|file|image|max:2048',
             'price' => 'required|numeric|min:0',
             'short_service_detail' => 'required|string|max:500',
             'description' => 'nullable|string',
