@@ -416,4 +416,33 @@ class ServiceController extends Controller
         ]);
     }
 
+    public function documentUpload(Request $request, $serviceId)
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:pdf,doc,docx|max:10240',
+            'note' => 'required|string'
+        ]);
+
+        $service = Service::findOrFail($serviceId);
+
+        if ($service->document && Storage::disk('public')->exists($service->document)) {
+            Storage::disk('public')->delete($service->document);
+        }
+
+        $file = $request->file('document');
+        $fileName = time() . '_' . $file->getClientOriginalName();
+
+        $path = $file->storeAs('main_document', $fileName, 'public');
+
+        $service->document = $path;
+        $service->note = $request->note;
+        $service->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Document uploaded successfully',
+            'path' => $path,
+        ]);
+    }
+
 }

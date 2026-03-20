@@ -15,8 +15,8 @@ class Service extends Model
         'price',
         'short_service_detail',
         'description',
-        'effective_date',
-        'expiry_date',
+        'document',
+        'note',
         'is_active',
     ];
 

@@ -8,6 +8,7 @@ class ServiceSubmission extends Model
 {
     protected $fillable = [
         'service_id',
+        'document',
         'data',
     ];
 
@@ -18,6 +19,13 @@ class ServiceSubmission extends Model
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function getDocumentUrlAttribute()
+    {
+        return $this->document
+            ? asset('storage/' . $this->document)
+            : null;
     }
 
     public function getValue($key)

@@ -17,8 +17,17 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('/document-keys/{service}', [ServiceController::class, 'documentKeys']);
     Route::get('/value-using-document-key/{service}', [ServiceController::class, 'value']);
 
+    Route::post('/document-upload/{service}', [ServiceController::class, 'documentUpload']);
+
     //form submit
     Route::post('/service-store/{service}', [ServiceSubmitController::class, 'submit']);
+    Route::get('/service-data/{id}', [ServiceSubmitController::class, 'getSubmission']);
+
+    //update submission
+    Route::post('/service/{serviceId}/submission/{submissionId}', [ServiceSubmitController::class, 'update']);
+
+    // Additional routes for submissions
+    Route::get('/get-service-submissions/{service}', [ServiceSubmitController::class, 'getServiceSubmissions']);
 
 });
 

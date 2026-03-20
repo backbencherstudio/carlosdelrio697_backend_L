@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('service_submissions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('service_id')->constrained()->cascadeOnDelete();
+            $table->string('document')->nullable();
 
             $table->json('data');
             $table->timestamps();
