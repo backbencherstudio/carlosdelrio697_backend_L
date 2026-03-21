@@ -5,6 +5,19 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\ServiceSubmitController;
 
 
+Route::get('/services', [ServiceController::class, 'services']);
+
+//Sservice submission
+Route::post('/service-store/{service}', [ServiceSubmitController::class, 'submit']);
+Route::get('/service-data/{id}', [ServiceSubmitController::class, 'getSubmission']);
+Route::get('/service-form-view/{service}', [ServiceController::class, 'view']);
+
+
+//update submission
+Route::post('/service/{serviceId}/submission/{submissionId}', [ServiceSubmitController::class, 'update']);
+
+// Additional routes for submissions
+Route::get('/get-service-submissions/{service}', [ServiceSubmitController::class, 'getServiceSubmissions']);
 
 Route::middleware(['auth:api', 'role:admin'])->group(function () {
 
@@ -19,15 +32,7 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
 
     Route::post('/document-upload/{service}', [ServiceController::class, 'documentUpload']);
 
-    //form submit
-    Route::post('/service-store/{service}', [ServiceSubmitController::class, 'submit']);
-    Route::get('/service-data/{id}', [ServiceSubmitController::class, 'getSubmission']);
 
-    //update submission
-    Route::post('/service/{serviceId}/submission/{submissionId}', [ServiceSubmitController::class, 'update']);
-
-    // Additional routes for submissions
-    Route::get('/get-service-submissions/{service}', [ServiceSubmitController::class, 'getServiceSubmissions']);
 
 });
 

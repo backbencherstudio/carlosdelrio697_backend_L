@@ -20,8 +20,8 @@ class DatabaseSeeder extends Seeder
         $this->call(RolePermissionSeeder::class);
 
         $adminApi=User::factory()->create([
-            'first_name' => 'Admin',
-            'last_name' => 'Sohel',
+            'first_name' => 'Super',
+            'last_name' => 'Admin',
             'email' => 'admin@gmail.com',
             // 'department' => 'IT',
             'mobile' => '01700000001',

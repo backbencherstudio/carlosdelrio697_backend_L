@@ -32,7 +32,7 @@ class ServiceController extends Controller
                 ->select('id', 'service_step_id', 'label', 'document_key', 'type', 'placeholder', 'required', 'options', 'column', 'order');
             }
         ])
-        ->select('id','title','icon','price','short_service_detail','description','effective_date','expiry_date','is_active','updated_at')
+        ->select('id','title','icon','price','short_service_detail','description','document','note','is_active','updated_at')
         ->orderBy('id', 'desc')
         ->paginate($perPage);
 
@@ -44,8 +44,8 @@ class ServiceController extends Controller
                 'price' => $service->price,
                 'short_service_detail' => $service->short_service_detail,
                 'description' => $service->description,
-                'effective_date' => $service->effective_date,
-                'expiry_date' => $service->expiry_date,
+                'document' => $service->document_url,
+                'note' => $service->note,
                 'is_active' => $service->is_active,
                 'updated_at' => $service->updated_at ? $service->updated_at->format('Y-m-d') : null,
                 'steps' => $service->steps->map(function ($step) {
@@ -183,12 +183,13 @@ class ServiceController extends Controller
                 );
             }
         ])
-        ->select('id','title', 'icon', 'price', 'short_service_detail','description','effective_date','expiry_date','is_active')
+        ->select('id','title', 'icon', 'price', 'short_service_detail','description','document','note','is_active')
         ->findOrFail($service->id);
 
         $serviceData = $service->toArray();
 
         $serviceData['icon'] = $service->icon ? asset('storage/' . $service->icon) : null;
+        $serviceData['document'] = $service->document ? asset('storage/' . $service->document) : null;
 
         return response()->json([
             'status' => true,
@@ -336,6 +337,13 @@ class ServiceController extends Controller
     public function destroy(Service $service)
     {
         try {
+            if ($service->icon && Storage::disk('public')->exists($service->icon)) {
+                Storage::disk('public')->delete($service->icon);
+            }
+            if ($service->document && Storage::disk('public')->exists($service->document)) {
+                Storage::disk('public')->delete($service->document);
+            }
+
             $service->delete();
 
             return response()->json([
@@ -442,6 +450,99 @@ class ServiceController extends Controller
             'status' => true,
             'message' => 'Document uploaded successfully',
             'path' => $path,
+        ]);
+    }
+
+    public function services(Request $request)
+    {
+        $services = Service::with([
+            'steps' => function ($q) {
+                $q->orderBy('order')
+                ->select('id', 'service_id', 'title', 'order');
+            },
+            'steps.fields' => function ($q) {
+                $q->orderBy('order')
+                ->select('id','service_step_id',
+                    'label','document_key','type','placeholder','required','options','column','order'
+                );
+            }
+        ])
+        ->select('id','title','icon','price',
+            'short_service_detail', 'description','document','note','is_active','updated_at'
+        )
+        ->orderBy('id', 'desc')
+        ->get();
+
+        $services = $services->map(function ($service) {
+            return [
+                'id' => $service->id,
+                'title' => $service->title,
+                'icon' => $service->icon_url,
+                'price' => $service->price,
+                'short_service_detail' => $service->short_service_detail,
+                'description' => $service->description,
+                // 'document' => $service->document_url,
+                'note' => $service->note,
+                'is_active' => $service->is_active,
+                'updated_at' => $service->updated_at
+                    ? $service->updated_at->format('Y-m-d')
+                    : null,
+                'steps' => $service->steps->map(function ($step) {
+                    return [
+                        'id' => $step->id,
+                        'title' => $step->title,
+                        'order' => $step->order,
+                        'fields' => $step->fields->map(function ($field) {
+                            return [
+                                'id' => $field->id,
+                                'label' => $field->label,
+                                'document_key' => $field->document_key,
+                                'type' => $field->type,
+                                'placeholder' => $field->placeholder,
+                                'required' => $field->required,
+                                'options' => $field->options,
+                                'column' => $field->column,
+                                'order' => $field->order,
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Service forms retrieved successfully',
+            'data' => $services
+        ]);
+    }
+
+    public function view(Service $service)
+    {
+        $service = Service::with([
+            'steps' => function ($q) {
+                $q->orderBy('order')
+                ->select('id', 'service_id', 'title', 'order');
+            },
+            'steps.fields' => function ($q) {
+                $q->orderBy('order')
+                ->select('id', 'service_id', 'service_step_id', 'label', 'document_key', 'type',
+                    'placeholder', 'required', 'options', 'column', 'order'
+                );
+            }
+        ])
+        ->select('id','title', 'icon', 'price', 'short_service_detail','description','document','note','is_active')
+        ->findOrFail($service->id);
+
+        $serviceData = $service->toArray();
+
+        $serviceData['icon'] = $service->icon ? asset('storage/' . $service->icon) : null;
+        $serviceData['document'] = $service->document ? asset('storage/' . $service->document) : null;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Service form retrieved successfully',
+            'data' => $serviceData
         ]);
     }
 

@@ -28,6 +28,14 @@ class Service extends Model
         return null;
     }
 
+    public function getDocumentUrlAttribute()
+    {
+        if ($this->document) {
+            return asset('storage/' . $this->document);
+        }
+        return null;
+    }
+
     public function steps()
     {
         return $this->hasMany(ServiceStep::class)->orderBy('order');
