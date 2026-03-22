@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Order;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
-    public function processPayment(Request $request)
+public function processPayment(Request $request)
     {
         $request->validate([
             'payment_method_id' => 'required',
@@ -27,6 +29,8 @@ class PaymentController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
+        DB::beginTransaction();
+
         try {
             $intent = PaymentIntent::create([
                 'amount' => $amountInCents,
@@ -39,9 +43,15 @@ class PaymentController extends Controller
                 ],
             ]);
 
+            if (Order::where('stripe_transaction_id', $intent->id)->exists()) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Duplicate transaction detected'
+                ]);
+            }
+
             $paymentMethod = PaymentMethod::retrieve($request->payment_method_id);
-            $cardBrand = $paymentMethod->card->brand;
-            $cardLast4 = $paymentMethod->card->last4;
 
             $lastOrder = Order::latest()->first();
             $nextId = $lastOrder ? $lastOrder->id + 1 : 1;
@@ -56,18 +66,40 @@ class PaymentController extends Controller
                 'state'                 => $request->state,
                 'amount'                => $price,
                 'status'                => 'Completed',
-                'card_brand'            => ucfirst($cardBrand),
-                'card_last4'            => $cardLast4,
+                'card_brand'            => ucfirst($paymentMethod->card->brand),
+                'card_last4'            => $paymentMethod->card->last4,
                 'document_status'       => 'Ready',
                 'stripe_transaction_id' => $intent->id,
             ]);
+
+            $customer = Customer::firstOrCreate(
+                ['email' => $request->customer_email],
+                [
+                    'name' => $request->customer_name,
+                    'state' => $request->state,
+                    'join_date' => now(),
+                    'total_orders' => 0,
+                    'total_spent' => 0,
+                ]
+            );
+
+            $customer->update([
+                'total_orders' => $customer->total_orders + 1,
+                'total_spent'  => $customer->total_spent + $price,
+                'last_activity'=> now()
+            ]);
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Order processed successfully!',
                 'order_details' => $order
             ]);
+
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
