@@ -76,13 +76,12 @@ class PaymentController extends Controller
                 'stripe_transaction_id' => $intent->id,
             ]);
 
-            if (Settings::value('email_on_new_orders')) {
+            $adminEmails = User::role('admin')
+                ->where('new_order_e_notification', true)
+                ->pluck('email');
 
-                $adminEmails = User::role('admin')
-                    ->pluck('email')
-                    ->toArray();
-
-                Mail::to($adminEmails)
+            if ($adminEmails->isNotEmpty()) {
+                Mail::to($adminEmails->all())
                     ->queue(new NewOrderAdminMail($order));
             }
 
