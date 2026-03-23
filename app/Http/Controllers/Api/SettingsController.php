@@ -29,10 +29,8 @@ class SettingsController extends Controller
                         'profile_image' => $user->profile_image
                             ? asset('storage/' . $user->profile_image)
                             : null, // null safe
+                        'new_order_e_notification' => $user->new_order_e_notification ?? false,
                     ],
-                    'notification_settings' => [
-                        'new_order_e_notyfication' => $user->new_order_e_notyfication ?? false,
-                    ]
                 ]
             ], 200);
         } catch (\Throwable $e) {
@@ -57,8 +55,6 @@ class SettingsController extends Controller
                 'profile_image' => ['sometimes', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
                 'remove_image' => ['sometimes', 'boolean'],
             ]);
-
-
 
             if ($request->boolean('remove_image')) {
                 if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
@@ -117,7 +113,7 @@ class SettingsController extends Controller
             $user = $request->user();
 
             $validated = $request->validate([
-                'new_order_e_notyfication' => ['sometimes', 'boolean'],
+                'new_order_e_notification' => ['sometimes', 'boolean'],
             ]);
 
             if (empty($validated)) {

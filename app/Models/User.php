@@ -21,7 +21,7 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'mobile',
         'profile_image',
-        'new_order_e_notyfication',
+        'new_order_e_notification',
     ];
 
     protected $hidden = [
