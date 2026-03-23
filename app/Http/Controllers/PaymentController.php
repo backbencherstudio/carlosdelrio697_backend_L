@@ -10,10 +10,14 @@ use Stripe\PaymentMethod;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewOrderAdminMail;
+use App\Models\Settings;
+use App\Models\User;
 
 class PaymentController extends Controller
 {
-public function processPayment(Request $request)
+    public function processPayment(Request $request)
     {
         $request->validate([
             'payment_method_id' => 'required',
@@ -72,6 +76,16 @@ public function processPayment(Request $request)
                 'stripe_transaction_id' => $intent->id,
             ]);
 
+            if (Settings::value('email_on_new_orders')) {
+
+                $adminEmails = User::role('admin')
+                    ->pluck('email')
+                    ->toArray();
+
+                Mail::to($adminEmails)
+                    ->queue(new NewOrderAdminMail($order));
+            }
+
             $customer = Customer::firstOrCreate(
                 ['email' => $request->customer_email],
                 [
@@ -86,7 +100,7 @@ public function processPayment(Request $request)
             $customer->update([
                 'total_orders' => $customer->total_orders + 1,
                 'total_spent'  => $customer->total_spent + $price,
-                'last_activity'=> now()
+                'last_activity' => now()
             ]);
 
             DB::commit();
@@ -96,7 +110,6 @@ public function processPayment(Request $request)
                 'message' => 'Order processed successfully!',
                 'order_details' => $order
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -106,5 +119,4 @@ public function processPayment(Request $request)
             ], 500);
         }
     }
-
 }

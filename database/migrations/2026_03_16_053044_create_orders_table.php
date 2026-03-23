@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_number')->unique(); // ORD-001
-            $table->foreignId('service_id')->nullable()->constrained()->onDelete('set null');
+            $table->bigInteger('service_id');
+            $table->string('service_name', 500);
             $table->string('customer_name');
             $table->string('customer_email');
             $table->string('state');
