@@ -77,13 +77,6 @@
                         </td>
                     </tr>
 
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background:#f4f6f8; text-align:center; padding:18px; font-size:13px; color:#777;">
-                            © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
-                        </td>
-                    </tr>
-
                 </table>
 
             </td>
