@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('profile_image')->nullable();
             $table->string('email')->unique();
-            // $table->string('department')->nullable();
+            $table->boolean('new_order_e_notyfication')->default(false);
             $table->string('mobile')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
