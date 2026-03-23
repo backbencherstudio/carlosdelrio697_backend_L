@@ -44,6 +44,11 @@
                                 </tr>
 
                                 <tr style="background:#f9f9f9;">
+                                    <td style="font-weight:bold;">State:</td>
+                                    <td>{{ $order->state }}</td>
+                                </tr>
+
+                                <tr style="background:#f9f9f9;">
                                     <td style="font-weight:bold;">Service:</td>
                                     <td>{{ $order->service?->title }}</td>
                                 </tr>
@@ -51,6 +56,11 @@
                                 <tr>
                                     <td style="font-weight:bold;">Amount:</td>
                                     <td style="color:#4CAF50; font-weight:bold;">${{ $order->amount }}</td>
+                                </tr>
+
+                                <tr style="background:#f9f9f9;">
+                                    <td style="font-weight:bold;">Transaction ID:</td>
+                                    <td>{{ $order->stripe_transaction_id }}</td>
                                 </tr>
 
                                 <tr style="background:#f9f9f9;">
@@ -70,7 +80,7 @@
                     <!-- Footer -->
                     <tr>
                         <td style="background:#f4f6f8; text-align:center; padding:18px; font-size:13px; color:#777;">
-                            © {{ date('Y') }} Your Company. All rights reserved.
+                            © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
                         </td>
                     </tr>
 
