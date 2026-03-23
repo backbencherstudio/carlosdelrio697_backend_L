@@ -12,7 +12,6 @@ Route::post('/service-store/{service}', [ServiceSubmitController::class, 'submit
 Route::get('/service-data/{id}', [ServiceSubmitController::class, 'getSubmission']);
 Route::get('/service-form-view/{service}', [ServiceController::class, 'view']);
 
-
 //update submission
 Route::post('/service/{serviceId}/submission/{submissionId}', [ServiceSubmitController::class, 'update']);
 
@@ -31,8 +30,6 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('/value-using-document-key/{service}', [ServiceController::class, 'value']);
 
     Route::post('/document-upload/{service}', [ServiceController::class, 'documentUpload']);
-
-
 
 });
 
