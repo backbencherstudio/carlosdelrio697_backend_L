@@ -29,7 +29,8 @@ class DocumentMail extends Mailable implements ShouldQueue
             ['submission' => $this->submission->id]
         );
 
-        return $this->subject('Your Document is Ready - ' . $this->order->order_number)
+        // return $this->subject('Your Document is Ready - ' . $this->order->order_number)
+        return $this->subject('Your Document is Ready - ' . $this->order->service->title)
             ->view('emails.document_download');
     }
 }
