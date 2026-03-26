@@ -54,7 +54,6 @@ class ServiceSubmitController extends Controller
                 'message' => 'Form submitted successfully',
                 'submission_id' => $submission->id
             ]);
-
         } catch (\Throwable $e) {
 
             DB::rollBack();
@@ -217,7 +216,6 @@ class ServiceSubmitController extends Controller
                 'message' => 'Submission updated successfully',
                 'submission_id' => $submission->id
             ]);
-
         } catch (\Throwable $e) {
 
             DB::rollBack();
@@ -229,4 +227,25 @@ class ServiceSubmitController extends Controller
         }
     }
 
+
+    public function downloadDocument(Request $request, $id)
+    {
+        if (! $request->hasValidSignature()) {
+            abort(403, 'This download link has expired or is invalid.');
+        }
+
+        $submission = ServiceSubmission::findOrFail($id);
+
+        if (!$submission->document) {
+            return response()->json(['message' => 'Document is still being generated. Please try again in a moment.'], 404);
+        }
+
+        $filePath = $submission->document;
+
+        if (Storage::disk('public')->exists($filePath)) {
+            return Storage::disk('public')->download($filePath);
+        }
+
+        abort(404, 'File not found on server.');
+    }
 }

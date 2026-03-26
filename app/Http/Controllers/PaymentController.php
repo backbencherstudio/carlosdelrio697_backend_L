@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\DocumentMail;
 use App\Models\Customer;
 use App\Models\Order;
 use Stripe\Stripe;
@@ -12,8 +13,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewOrderAdminMail;
+use App\Models\ServiceSubmission;
+use Illuminate\Support\Facades\URL;
 use App\Models\Settings;
 use App\Models\User;
+use Dom\Document;
 
 class PaymentController extends Controller
 {
@@ -22,12 +26,14 @@ class PaymentController extends Controller
         $request->validate([
             'payment_method_id' => 'required',
             'service_id'        => 'required|exists:services,id',
+            'submission_id'     => 'required|exists:service_submissions,id',
             'customer_name'     => 'required|string',
             'customer_email'    => 'required|email',
             'state'             => 'required|string',
         ]);
 
         $service = Service::findOrFail($request->service_id);
+        $submission = ServiceSubmission::findOrFail($request->submission_id);
         $price = $service->price;
         $amountInCents = $price * 100;
 
@@ -103,6 +109,11 @@ class PaymentController extends Controller
             ]);
 
             DB::commit();
+
+            if ($submission) {
+                Mail::to($request->customer_email)
+                    ->queue(new DocumentMail($order, $submission));
+            }
 
             return response()->json([
                 'success' => true,

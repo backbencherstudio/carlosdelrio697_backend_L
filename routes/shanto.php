@@ -19,6 +19,10 @@ Route::post('/service/{serviceId}/submission/{submissionId}', [ServiceSubmitCont
 // Additional routes for submissions
 Route::get('/get-service-submissions/{service}', [ServiceSubmitController::class, 'getServiceSubmissions']);
 
+//download-document url
+Route::get('/download-document/{submission}', [ServiceSubmitController::class, 'downloadDocument'])->name('download.document');
+
+
 Route::middleware(['auth:api', 'role:admin'])->group(function () {
 
     Route::get('/service-forms', [ServiceController::class, 'index']);
