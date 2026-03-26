@@ -30,7 +30,7 @@
             <!-- Header -->
             <tr>
                 <td class="header">
-                    <h1>{{ config('app.name') }}</h1>
+                    <h1>{{ config('app.name', 'TrustHaus') }}</h1>
                 </td>
             </tr>
 
