@@ -8,10 +8,10 @@
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f7f9; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
         .wrapper { width: 100%; table-layout: fixed; background-color: #f4f7f9; padding-bottom: 40px; }
         .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-spacing: 0; color: #4a4a4a; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .header { background-color: #1a202c; padding: 30px; text-align: center; color: #ffffff; }
+        .header { background-color: #4da04d; padding: 30px; text-align: center; color: #ffffff; }
         .header h1 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 1px; }
         .content { padding: 40px 30px; line-height: 1.6; }
-        .content h2 { color: #2d3748; margin-top: 0; font-size: 20px; }
+        .content h2 { color: #2d4844; margin-top: 0; font-size: 20px; }
         .order-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; margin: 25px 0; }
         .order-table { width: 100%; border-collapse: collapse; }
         .order-table td { padding: 8px 0; font-size: 14px; }
@@ -30,7 +30,7 @@
             <!-- Header -->
             <tr>
                 <td class="header">
-                    <h1>TrustHaus</h1>
+                    <h1>{{ config('app.name') }}</h1>
                 </td>
             </tr>
 
