@@ -39,7 +39,7 @@ class DashboardController extends Controller
         $data = [];
 
         if ($filter === 'this_month' || $filter === 'last_month') {
-            $date = ($filter === 'this_month') ? Carbon::now() : Carbon::now()->subMonth();
+            $date = ($filter === 'this_month') ? Carbon::now() : Carbon::now()->subMonthNoOverflow();
             $daysInMonth = $date->daysInMonth;
 
             for ($i = 1; $i <= $daysInMonth; $i++) {
